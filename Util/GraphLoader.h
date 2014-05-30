@@ -58,7 +58,8 @@ NodeID readBinaryOSRMGraphFromStream(std::istream &input_stream,
                                      std::vector<NodeID> &barrier_node_list,
                                      std::vector<NodeID> &traffic_light_node_list,
                                      std::vector<NodeInfo> *int_to_ext_node_id_map,
-                                     std::vector<TurnRestriction> &restriction_list)
+                                     std::vector<TurnRestriction> &restriction_list,
+                                     const bool use_elevation)
 {
     const FingerPrint fingerprint_orig;
     FingerPrint fingerprint_loaded;
@@ -81,6 +82,9 @@ NodeID readBinaryOSRMGraphFromStream(std::istream &input_stream,
     {
         input_stream.read((char *)&current_node, sizeof(ExternalMemoryNode));
         int_to_ext_node_id_map->emplace_back(current_node.lat, current_node.lon, current_node.node_id);
+        if (use_elevation) {
+            int_to_ext_node_id_map->back().setEle(current_node.getEle());
+        }
         ext_to_int_id_map.emplace(current_node.node_id, i);
         if (current_node.bollard)
         {

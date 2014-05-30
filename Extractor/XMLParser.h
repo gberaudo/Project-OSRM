@@ -38,7 +38,13 @@ class ExtractorCallbacks;
 class XMLParser : public BaseParser
 {
   public:
-    XMLParser(const char *filename, ExtractorCallbacks *ec, ScriptingEnvironment &se);
+    XMLParser(
+        const char* filename,
+        ExtractorCallbacks* ec,
+        ScriptingEnvironment& se,
+        const bool use_elevation
+    );
+
     bool ReadHeader();
     bool Parse();
 

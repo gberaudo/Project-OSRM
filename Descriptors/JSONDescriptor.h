@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../DataStructures/SegmentInformation.h"
 #include "../DataStructures/TurnInstructions.h"
 #include "../Util/Azimuth.h"
+#include "../Util/EstimateElevation.h"
 #include "../Util/StringUtil.h"
 #include "../Util/TimingUtil.h"
 
@@ -75,6 +76,7 @@ template <class DataFacadeT> class JSONDescriptor : public BaseDescriptor<DataFa
 
     unsigned DescribeLeg(const std::vector<PathData> route_leg,
                          const PhantomNodes &leg_phantoms,
+                         const RawRouteData &raw_route,
                          const bool target_traversed_in_reverse)
     {
         unsigned added_element_count = 0;
@@ -83,10 +85,16 @@ template <class DataFacadeT> class JSONDescriptor : public BaseDescriptor<DataFa
         for (const PathData &path_data : route_leg)
         {
             current_coordinate = facade->GetCoordinateOfNode(path_data.node);
-            description_factory.AppendSegment(current_coordinate, path_data);
+            description_factory.AppendSegment(current_coordinate, path_data,
+                  config.elevation, current_coordinate.getEle());
             ++added_element_count;
         }
-        description_factory.SetEndSegment(leg_phantoms.target_phantom, target_traversed_in_reverse);
+        int end_elevation = config.elevation? EstimateElevation(leg_phantoms.target_phantom,
+                 raw_route.unpacked_path_segments, facade, false) : 0;
+
+        description_factory.SetEndSegment(leg_phantoms.target_phantom, target_traversed_in_reverse,
+            config.elevation, end_elevation
+        );
         ++added_element_count;
         BOOST_ASSERT((route_leg.size() + 1) == added_element_count);
         return added_element_count;
@@ -111,9 +119,13 @@ template <class DataFacadeT> class JSONDescriptor : public BaseDescriptor<DataFa
         BOOST_ASSERT(raw_route.unpacked_path_segments.size() ==
                      raw_route.segment_end_coordinates.size());
 
+        int source_elevation = config.elevation ? EstimateElevation(
+            raw_route.segment_end_coordinates.front().source_phantom,
+            raw_route.unpacked_path_segments, facade, true) : 0;
         description_factory.SetStartSegment(
             raw_route.segment_end_coordinates.front().source_phantom,
-            raw_route.source_traversed_in_reverse.front());
+            raw_route.source_traversed_in_reverse.front(),
+            config.elevation, source_elevation);
         json_result.values["status"] = 0;
         json_result.values["status_message"] = "Found route between points";
 
@@ -123,17 +135,20 @@ template <class DataFacadeT> class JSONDescriptor : public BaseDescriptor<DataFa
 #ifndef NDEBUG
             const int added_segments =
 #endif
-                DescribeLeg(raw_route.unpacked_path_segments[i],
+            DescribeLeg(raw_route.unpacked_path_segments[i],
                             raw_route.segment_end_coordinates[i],
+                            raw_route,
                             raw_route.target_traversed_in_reverse[i]);
             BOOST_ASSERT(0 < added_segments);
         }
+
         description_factory.Run(facade, config.zoom_level);
 
         if (config.geometry)
         {
             JSON::Value route_geometry =
-                description_factory.AppendEncodedPolylineString(config.encode_geometry);
+                description_factory.AppendEncodedPolylineString(config.encode_geometry,
+                config.elevation);
             json_result.values["route_geometry"] = route_geometry;
         }
         if (config.instructions)
@@ -194,12 +209,13 @@ template <class DataFacadeT> class JSONDescriptor : public BaseDescriptor<DataFa
             BOOST_ASSERT(!raw_route.alt_source_traversed_in_reverse.empty());
             alternate_description_factory.SetStartSegment(
                 raw_route.segment_end_coordinates.front().source_phantom,
-                raw_route.alt_source_traversed_in_reverse.front());
+                raw_route.alt_source_traversed_in_reverse.front(),
+                false, 0);
             // Get all the coordinates for the computed route
             for (const PathData &path_data : raw_route.unpacked_alternative)
             {
                 current = facade->GetCoordinateOfNode(path_data.node);
-                alternate_description_factory.AppendSegment(current, path_data);
+                alternate_description_factory.AppendSegment(current, path_data, false, 0);
             }
             alternate_description_factory.Run(facade, config.zoom_level);
 

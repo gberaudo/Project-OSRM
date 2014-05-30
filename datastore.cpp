@@ -59,6 +59,7 @@ typedef StaticGraph<QueryEdge::EdgeData> QueryGraph;
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 int main(const int argc, const char *argv[])
 {
@@ -97,7 +98,8 @@ int main(const int argc, const char *argv[])
 
         ServerPaths server_paths;
         bool springclean = false;
-        if (!GenerateDataStoreOptions(argc, argv, server_paths, springclean))
+        bool use_elevation;
+        if (!GenerateDataStoreOptions(argc, argv, server_paths, springclean, use_elevation))
         {
             return 0;
         }
@@ -129,6 +131,7 @@ int main(const int argc, const char *argv[])
             return 0;
         }
 
+        SimpleLogger().Write() << "Using elevation: " << use_elevation;
         if (server_paths.find("hsgrdata") == server_paths.end())
         {
             throw OSRMException("no hsgr file found");
@@ -476,7 +479,7 @@ int main(const int argc, const char *argv[])
         for (unsigned i = 0; i < coordinate_list_size; ++i)
         {
             nodes_input_stream.read((char *)&current_node, sizeof(NodeInfo));
-            coordinates_ptr[i] = FixedPointCoordinate(current_node.lat, current_node.lon);
+            coordinates_ptr[i] = FixedPointCoordinate(current_node.lat, current_node.lon, current_node.getEle());
         }
         nodes_input_stream.close();
 

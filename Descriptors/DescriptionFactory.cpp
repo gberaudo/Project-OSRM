@@ -47,25 +47,31 @@ std::vector<unsigned> const & DescriptionFactory::GetViaIndices() const
 }
 
 
-void DescriptionFactory::SetStartSegment(const PhantomNode &source, const bool traversed_in_reverse)
+void DescriptionFactory::SetStartSegment(const PhantomNode &source, const bool traversed_in_reverse, const bool use_elevation, const int elevation)
 {
     start_phantom = source;
     const EdgeWeight segment_duration = (traversed_in_reverse ? source.reverse_weight : source.forward_weight);
-    AppendSegment(source.location, PathData(0, source.name_id, TurnInstruction::HeadOn, segment_duration));
+    AppendSegment(source.location, PathData(0, source.name_id, TurnInstruction::HeadOn, segment_duration), use_elevation, elevation);
     BOOST_ASSERT(path_description.back().duration == segment_duration);
 }
 
-void DescriptionFactory::SetEndSegment(const PhantomNode &target, const bool traversed_in_reverse)
+void DescriptionFactory::SetEndSegment(const PhantomNode &target, const bool traversed_in_reverse, const bool use_elevation, const int elevation)
 {
     target_phantom = target;
     const EdgeWeight segment_duration = (traversed_in_reverse ? target.reverse_weight : target.forward_weight);
     path_description.emplace_back(
         target.location, target.name_id, segment_duration, 0, TurnInstruction::NoTurn, true, true);
     BOOST_ASSERT(path_description.back().duration == segment_duration);
+
+    if (use_elevation)
+    {
+        path_description.back().location.setEle(elevation);
+    }
 }
 
 void DescriptionFactory::AppendSegment(const FixedPointCoordinate &coordinate,
-                                       const PathData &path_point)
+                                       const PathData &path_point,
+                                       const bool use_elevation, const int elevation)
 {
     if ((1 == path_description.size()) && (path_description.back().location == coordinate))
     {
@@ -78,15 +84,20 @@ void DescriptionFactory::AppendSegment(const FixedPointCoordinate &coordinate,
                                   path_point.segment_duration,
                                   0,
                                   path_point.turn_instruction);
+
+    if (use_elevation)
+    {
+        path_description.back().location.setEle(elevation);
+    }
 }
 
-JSON::Value DescriptionFactory::AppendEncodedPolylineString(const bool return_encoded)
+JSON::Value DescriptionFactory::AppendEncodedPolylineString(const bool return_encoded, const bool use_elevation)
 {
     if (return_encoded)
     {
-        return polyline_compressor.printEncodedString(path_description);
+        return polyline_compressor.printEncodedString(path_description, use_elevation);
     }
-    return polyline_compressor.printUnencodedString(path_description);
+    return polyline_compressor.printUnencodedString(path_description, use_elevation);
 }
 
 JSON::Value DescriptionFactory::AppendUnencodedPolylineString() const
