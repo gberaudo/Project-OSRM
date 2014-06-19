@@ -213,7 +213,7 @@ template <class EdgeDataT> class InternalDataFacade : public BaseDataFacade<Edge
         BOOST_ASSERT_MSG(0 != number_of_chars, "name file broken");
         m_names_char_list.resize(number_of_chars + 1); //+1 gives sentinel element
         name_stream.read((char *)&m_names_char_list[0], number_of_chars * sizeof(char));
-        BOOST_ASSERT_MSG(0 != m_names_char_list.size(), "could not load any names");
+//        BOOST_ASSERT_MSG(0 != m_names_char_list.size(), "could not load any names");
         name_stream.close();
     }
 
