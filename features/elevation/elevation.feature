@@ -9,7 +9,6 @@ Feature: Route with elevation
         Given the node map
             | a |   |
             |   | b |
-            |   |   |
 
         And the ways
             | nodes |
@@ -20,8 +19,11 @@ Feature: Route with elevation
             | a    | 1732.18    |
             | b    | 98.45      |
 
+        And elevation is on
 
-        When I route with elevation I should get
+        And compression is off
+
+        When I route I should get
             | from | to | route | elevation       |
             | a    | b  | ab    | 1732.18 98.45   |
 
@@ -47,8 +49,11 @@ Feature: Route with elevation
             | c    | -32.10     |
             | d    | 2.4321     |
 
+        And elevation is on
 
-        When I route with elevation I should get
+        And compression is off
+
+        When I route I should get
             | from | to | route    | elevation                  |
             | a    | c  | ab,bc    | 1732.18 98.45 -32.10       |
             | a    | d  | ab,bc,cd | 1732.18 98.45 -32.10 2.43  |
@@ -76,7 +81,11 @@ Feature: Route with elevation
             | d    | 2.4321     |
 
 
-        When I route with elevation I should get
+        And elevation is on
+
+        And compression is off
+
+        When I route I should get
             | from | to | route | geometry                                                                     |
             | a    | c  | ab,bc | 1.000000,1.000000,1732.18 0.999100,1.000899,98.45 0.998201,1.001798,-32.10   |
             | b    | d  | bc,cd | 0.999100,1.000899,98.45 0.998201,1.001798,-32.10 1.000000,1.002697,2.43     |
@@ -84,7 +93,7 @@ Feature: Route with elevation
 
 
 @no_ele_data
-    Scenario: Route with elevation without ele
+    Scenario: Route with elevation without ele tags in osm data
         Given the node map
             | a |   |   | d |
             |   | b |   |   |
@@ -96,11 +105,17 @@ Feature: Route with elevation
             | bc    |
             | cd    |
 
+        And elevation data is off
 
-        When I route with elevation I should get
+        And elevation is on
+
+        And compression is off
+
+        When I route I should get
             | from | to | route | geometry                                                                                    |
             | a    | c  | ab,bc | 1.000000,1.000000,21474836.47 0.999100,1.000899,21474836.47 0.998201,1.001798,21474836.47   |
             | b    | d  | bc,cd | 0.999100,1.000899,21474836.47 0.998201,1.001798,21474836.47 1.000000,1.002697,21474836.47   |
+
 
 @no_ele_request
     Scenario: Route without elevation
@@ -114,7 +129,6 @@ Feature: Route with elevation
             | ab    |
             | bc    |
             | cd    |
-
 
         When I route I should get
             | from | to | route | geometry                    |

@@ -1,5 +1,5 @@
-When /^I route using elevation (\d) I should get$/ do |use_ele,table|
-  use_ele = use_ele.to_i == 1
+When /^I route I should get$/ do |table|
+  use_ele = elevation_data_enabled and query_parameter['elevation']
   reprocess use_ele
   actual = []
   OSRMBackgroundLauncher.new("#{@osm_file}.osrm", use_ele) do
@@ -8,7 +8,7 @@ When /^I route using elevation (\d) I should get$/ do |use_ele,table|
         got = {'request' => row['request'] }
         response = request_url row['request']
       else
-        params = {'elevation' => use_ele, 'compression' => !use_ele}
+        params = query_parameter
         waypoints = []
         if row['from'] and row['to']
           node = find_node_by_name(row['from'])
@@ -79,7 +79,7 @@ When /^I route using elevation (\d) I should get$/ do |use_ele,table|
           got['end'] = instructions ? json['route_summary']['end_point'] : nil
         end
         if table.headers.include? 'geometry'
-          if params['compression']
+          if !params.has_key?('compression') or params['compression'] # default is to compress
             # could decode the polyline with appropriate ruby support
             got['geometry'] = json['route_geometry']
           else
@@ -151,14 +151,6 @@ When /^I route using elevation (\d) I should get$/ do |use_ele,table|
     end
   end
   table.routing_diff! actual
-end
-
-When /^I route I should get$/ do |table|
-  step "I route using elevation 0 I should get", table
-end
-
-When /^I route with elevation I should get$/ do |table|
-  step "I route using elevation 1 I should get", table
 end
 
 When /^I route (\d+) times I should get$/ do |n,table|
