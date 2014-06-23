@@ -30,8 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BaseDescriptor.h"
 
-#include "../Util/EstimateElevation.h"
-
 template <class DataFacadeT> class GPXDescriptor : public BaseDescriptor<DataFacadeT>
 {
   private:
@@ -69,8 +67,7 @@ template <class DataFacadeT> class GPXDescriptor : public BaseDescriptor<DataFac
     }
 
     inline void AddRoutePoint(const PhantomNode &node, const RawRouteData &raw_route, std::vector<char> &output) {
-        int ele = config.elevation? EstimateElevation(node, raw_route.unpacked_path_segments, facade, true) : 0;
-        AddRoutePoint(node.location, ele, output);
+        AddRoutePoint(node.location, node.location.getEle(), output);
     }
 
     inline void AddRoutePoint(const NodeID &node, const RawRouteData &raw_route, std::vector<char> &output) {

@@ -81,10 +81,7 @@ NodeID readBinaryOSRMGraphFromStream(std::istream &input_stream,
     for (NodeID i = 0; i < n; ++i)
     {
         input_stream.read((char *)&current_node, sizeof(ExternalMemoryNode));
-        int_to_ext_node_id_map->emplace_back(current_node.lat, current_node.lon, current_node.node_id);
-        if (use_elevation) {
-            int_to_ext_node_id_map->back().setEle(current_node.getEle());
-        }
+        int_to_ext_node_id_map->emplace_back(current_node);
         ext_to_int_id_map.emplace(current_node.node_id, i);
         if (current_node.bollard)
         {

@@ -4,6 +4,30 @@ Feature: Route with elevation
     Background: Use some profile
         Given the profile "car"
 
+
+    Scenario: Route and retrieve elevation - match on elevations - short
+        Given the node map
+            | a |   |
+            |   | b |
+            |   |   |
+
+        And the ways
+            | nodes |
+            | ab    |
+
+        And the nodes
+            | node | ele        |
+            | a    | 1732.18    |
+            | b    | 98.45      |
+
+
+        When I route with elevation I should get
+            | from | to | route | elevation       |
+            | a    | b  | ab    | 1732.18 98.45   |
+
+
+
+
     Scenario: Route and retrieve elevation - match on elevations
         Given the node map
             | a |   |   | d |

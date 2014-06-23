@@ -216,6 +216,13 @@ FixedPointCoordinate::ComputePerpendicularDistance(const FixedPointCoordinate &s
         nearest_location.lat = static_cast<int>(y2lat(p) * COORDINATE_PRECISION);
         nearest_location.lon = static_cast<int>(q * COORDINATE_PRECISION);
     }
+
+    // Interpolate the elevation of the projection using both ends
+    const float distance_1 = ApproximateEuclideanDistance(source_coordinate, nearest_location);
+    const float distance_2 = ApproximateEuclideanDistance(source_coordinate, target_coordinate);
+    float eleRatio = std::min(1.f, distance_1 / distance_2);
+    nearest_location.setEle(source_coordinate.getEle() * (1.0 - eleRatio) + target_coordinate.getEle() * eleRatio);
+
     BOOST_ASSERT(nearest_location.isValid());
     return FixedPointCoordinate::ApproximateEuclideanDistance(point, nearest_location);
 }
