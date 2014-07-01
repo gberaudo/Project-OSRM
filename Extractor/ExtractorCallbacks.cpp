@@ -52,7 +52,15 @@ void ExtractorCallbacks::ProcessNode(const ImportNode &n, const bool use_elevati
     {
         external_memory.all_nodes_list.push_back(n);
         if (use_elevation && n.keyVals.Holds("ele")) {
-            int elevation = static_cast<int>(ELEVATION_PRECISION * std::stod(n.keyVals.Find("ele")));
+            int elevation = Coordinate::MIN;
+            try
+            {
+                elevation = static_cast<int>(ELEVATION_PRECISION * std::stod(n.keyVals.Find("ele")));
+            }
+            catch(...)
+            {
+                SimpleLogger().Write(logWARNING) << "Node " << n.node_id << ": invalid elevation " << n.keyVals.Find("ele");
+            }
             external_memory.all_nodes_list.back().setEle(elevation);
         }
     }
