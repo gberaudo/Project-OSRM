@@ -163,7 +163,7 @@ public:
             end_idx = block_offsets[block_idx + 1];
         }
 
-        BOOST_ASSERT(begin_idx < sum_lengths && end_idx <= sum_lengths);
+        BOOST_ASSERT((begin_idx == 0 || begin_idx < sum_lengths) && end_idx <= sum_lengths);
         BOOST_ASSERT(begin_idx <= end_idx);
 
         return boost::irange(begin_idx, end_idx);
