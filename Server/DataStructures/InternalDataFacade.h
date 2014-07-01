@@ -205,13 +205,12 @@ template <class EdgeDataT> class InternalDataFacade : public BaseDataFacade<Edge
     void LoadStreetNames(const boost::filesystem::path &names_file)
     {
         boost::filesystem::ifstream name_stream(names_file, std::ios::binary);
-
         name_stream >> m_name_table;
 
         unsigned number_of_chars = 0;
         name_stream.read((char *)&number_of_chars, sizeof(unsigned));
-        BOOST_ASSERT_MSG(0 != number_of_chars, "name file broken");
         m_names_char_list.resize(number_of_chars + 1); //+1 gives sentinel element
+
         name_stream.read((char *)&m_names_char_list[0], number_of_chars * sizeof(char));
         if (0 == m_names_char_list.size())
         {
