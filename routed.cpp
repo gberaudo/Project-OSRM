@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "Library/OSRM.h"
+#include "osrm/OSRM_config.h"
 #include "Server/ServerFactory.h"
 #include "Util/GitDescription.h"
 #include "Util/ProgramOptions.h"
@@ -133,6 +134,12 @@ int main(int argc, const char *argv[])
         sigfillset(&new_mask);
         pthread_sigmask(SIG_BLOCK, &new_mask, &old_mask);
 #endif
+
+        if (use_elevation && !COMPILED_WITH_ELEVATION)
+        {
+             SimpleLogger().Write(logWARNING) << "Application was not compiled with elevation support";
+             return 1;
+        }
 
         OSRM osrm_lib(server_paths, use_shared_memory, use_elevation);
         Server *routing_server =

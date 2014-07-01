@@ -97,8 +97,7 @@ int main(const int argc, const char *argv[])
 
         ServerPaths server_paths;
         bool springclean = false;
-        bool use_elevation;
-        if (!GenerateDataStoreOptions(argc, argv, server_paths, springclean, use_elevation))
+        if (!GenerateDataStoreOptions(argc, argv, server_paths, springclean))
         {
             return 0;
         }
@@ -130,7 +129,6 @@ int main(const int argc, const char *argv[])
             return 0;
         }
 
-        SimpleLogger().Write() << "Using elevation: " << use_elevation;
         if (server_paths.find("hsgrdata") == server_paths.end())
         {
             throw OSRMException("no hsgr file found");

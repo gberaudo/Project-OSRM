@@ -194,6 +194,12 @@ int main(int argc, char *argv[])
                                              << "! This setting may have performance side-effects.";
         }
 
+        if (use_elevation && !COMPILED_WITH_ELEVATION)
+        {
+             SimpleLogger().Write(logWARNING) << "Application was not compiled with elevation support";
+             return 1;
+        }
+
         tbb::task_scheduler_init init(requested_num_threads);
 
         LogPolicy::GetInstance().Unmute();

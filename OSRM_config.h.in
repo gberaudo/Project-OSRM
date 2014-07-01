@@ -2,6 +2,12 @@
 #define OSRM_CONFIG
 
 #cmakedefine OSRM_HAS_ELEVATION
+#ifdef OSRM_HAS_ELEVATION
+constexpr bool COMPILED_WITH_ELEVATION = true;
+#else
+constexpr bool COMPILED_WITH_ELEVATION = false;
+#endif
+
 constexpr int ELEVATION_NUM_DIGITS = 2;
 constexpr float ELEVATION_PRECISION = 100.;
 
