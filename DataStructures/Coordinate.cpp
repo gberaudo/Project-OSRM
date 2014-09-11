@@ -295,6 +295,7 @@ float FixedPointCoordinate::ComputePerpendicularDistance(const FixedPointCoordin
         // point lies in between
         nearest_location.lat = static_cast<int>(y2lat(p) * COORDINATE_PRECISION);
         nearest_location.lon = static_cast<int>(q * COORDINATE_PRECISION);
+        nearest_location.setEle(segment_source.getEle() * (1.0 - ratio) + segment_target.getEle() * ratio);
     }
     BOOST_ASSERT(nearest_location.isValid());
 
