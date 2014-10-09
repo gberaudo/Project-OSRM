@@ -40,30 +40,30 @@ template <class DataFacadeT> class GPXDescriptor : public BaseDescriptor<DataFac
 
     void AddRoutePoint(const FixedPointCoordinate &coordinate, std::vector<char> &output)
     {
-        const std::string route_point_head = "<rtept lat=\"";
-        const std::string route_point_middle = " lon=\"";
-        const std::string route_point_ele = " ele=\"";
-        const std::string route_point_tail = "\"></rtept>";
+        auto append = [&output](const std::string &txt) {
+          output.insert(output.end(), txt.begin(), txt.end());
+        };
 
         std::string tmp;
 
+        append("<rtept");
         FixedPointCoordinate::convertInternalLatLonToString(coordinate.lat, tmp);
-        output.insert(output.end(), route_point_head.begin(), route_point_head.end());
-        output.insert(output.end(), tmp.begin(), tmp.end());
+        append(" lat=\"");
+        append(tmp);
         output.push_back('\"');
 
         FixedPointCoordinate::convertInternalLatLonToString(coordinate.lon, tmp);
-        output.insert(output.end(), route_point_middle.begin(), route_point_middle.end());
-        output.insert(output.end(), tmp.begin(), tmp.end());
+        append(" lon=\"");
+        append(tmp);
+        append("\">");
 
         if (config.elevation) {
-            output.push_back('\"');
             FixedPointCoordinate::convertInternalElevationToString(coordinate.getEle(), tmp);
-            output.insert(output.end(), route_point_ele.cbegin(), route_point_ele.cend());
-            output.insert(output.end(), tmp.cbegin(), tmp.cend());
+            append("<ele>");
+            append(tmp);
+            append("</ele>");
         }
-
-        output.insert(output.end(), route_point_tail.begin(), route_point_tail.end());
+        append("</rtept>");
     }
 
 
@@ -81,8 +81,8 @@ template <class DataFacadeT> class GPXDescriptor : public BaseDescriptor<DataFac
                            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                            "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 gpx.xsd"
                            "\">"
-                           "<metadata><copyright author=\"Project OSRM\"><license>Data (c)"
-                           " OpenStreetMap contributors (ODbL)</license></copyright>"
+                           "<metadata><copyright author=\"FIXME\"><license>Data (c)"
+                           " FIXME</license></copyright>"
                            "</metadata>"
                            "<rte>");
         reply.content.insert(reply.content.end(), header.begin(), header.end());
